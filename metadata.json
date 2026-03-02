@@ -1,0 +1,5 @@
+{
+  "name": "AI Application Assistant",
+  "description": "Help students automatically tailor their CV and cover letter to job descriptions using AI.",
+  "requestFramePermissions": []
+}
