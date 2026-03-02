@@ -1,13 +1,22 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenAI, Type } from '@google/genai';
 
-// Note: In the AI Studio environment, the key is injected as NEXT_PUBLIC_GEMINI_API_KEY.
-// For a standard Vercel deployment, you can change this to process.env.GEMINI_API_KEY
-// as long as you have it set in your Vercel environment variables.
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+let aiClient: GoogleGenAI | null = null;
+
+function getAiClient(): GoogleGenAI {
+  if (!aiClient) {
+    const key = process.env.GEMINI_API_KEY;
+    if (!key) {
+      throw new Error('GEMINI_API_KEY environment variable is required');
+    }
+    aiClient = new GoogleGenAI({ apiKey: key });
+  }
+  return aiClient;
+}
 
 export async function POST(request: Request) {
   try {
+    const ai = getAiClient();
     const { cv, jobDescription } = await request.json();
 
     if (!cv || !jobDescription) {
