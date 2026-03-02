@@ -1,11 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { GoogleGenAI, Type } from '@google/genai';
 import { motion } from 'motion/react';
 import { Briefcase, FileText, Sparkles, Loader2, CheckCircle2, ChevronRight, AlertCircle } from 'lucide-react';
-
-const ai = new GoogleGenAI({ apiKey: process.env.NEXT_PUBLIC_GEMINI_API_KEY });
 
 interface TailoredResult {
   cvBulletPoints: string[];
@@ -32,60 +29,25 @@ export default function ApplicationAssistant() {
     setResult(null);
 
     try {
-      const prompt = `
-        You are an expert career coach and ATS optimization specialist.
-        Your task is to help a student/early professional tailor their application to a specific job description.
-
-        Core rules:
-        - Use ONLY information provided in the user's CV.
-        - NEVER invent experience, skills, companies, or achievements.
-        - Optimize outputs for ATS keyword matching based on the job description.
-        - Write concise, professional, impact-focused bullet points.
-        - Prefer quantified achievements when possible.
-        - Keep tone professional and realistic for internships and graduate roles.
-
-        User's CV:
-        ${cv}
-
-        Job Description:
-        ${jobDescription}
-      `;
-
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: prompt,
-        config: {
-          responseMimeType: 'application/json',
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              cvBulletPoints: {
-                type: Type.ARRAY,
-                items: { type: Type.STRING },
-                description: 'Tailored CV bullet points highlighting relevant experience from the user CV for the job description.',
-              },
-              atsKeywords: {
-                type: Type.ARRAY,
-                items: { type: Type.STRING },
-                description: 'List of ATS keywords extracted from the job description that match the user CV.',
-              },
-              coverLetter: {
-                type: Type.STRING,
-                description: 'A tailored cover letter (max 150 words) using ONLY facts from the user CV, addressing the job description.',
-              },
-            },
-            required: ['cvBulletPoints', 'atsKeywords', 'coverLetter'],
-          },
-          systemInstruction: 'You are a career assistant. Always return valid JSON.',
+      const response = await fetch('/api/gemini', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify({ cv, jobDescription }),
       });
 
-      const text = response.text;
-      if (text) {
-        const parsed = JSON.parse(text) as TailoredResult;
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to tailor application.');
+      }
+
+      if (data.text) {
+        const parsed = JSON.parse(data.text) as TailoredResult;
         setResult(parsed);
       } else {
-        throw new Error('No response from AI.');
+        throw new Error('Invalid response format from server.');
       }
     } catch (err: any) {
       console.error(err);
