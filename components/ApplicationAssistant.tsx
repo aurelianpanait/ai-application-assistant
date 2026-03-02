@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Briefcase, FileText, Sparkles, Loader2, CheckCircle2, ChevronRight, AlertCircle } from 'lucide-react';
+import { Briefcase, FileText, Sparkles, Loader2, CheckCircle2, ChevronRight, AlertCircle, ListOrdered, UserCircle } from 'lucide-react';
+import Link from 'next/link';
 
 interface TailoredResult {
   cvBulletPoints: string[];
@@ -11,16 +12,16 @@ interface TailoredResult {
 }
 
 export default function ApplicationAssistant() {
-  const [cv, setCv] = useState('');
   const [jobDescription, setJobDescription] = useState('');
+  const [bulletCount, setBulletCount] = useState(5);
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<TailoredResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const handleTailor = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!cv.trim() || !jobDescription.trim()) {
-      setError('Please provide both your CV and the job description.');
+    if (!jobDescription.trim()) {
+      setError('Please provide the job description.');
       return;
     }
 
@@ -34,7 +35,7 @@ export default function ApplicationAssistant() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ cv, jobDescription }),
+        body: JSON.stringify({ jobDescription, bulletCount }),
       });
 
       const data = await response.json();
@@ -69,8 +70,14 @@ export default function ApplicationAssistant() {
             Tailor Your Application <span className="text-indigo-600">in Seconds</span>
           </h1>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-            Paste your current CV and the job description. We&apos;ll extract ATS keywords, rewrite your bullet points, and draft a concise cover letter—using only your real experience.
+            Paste the job description below. We&apos;ll use your Master CV Knowledge Base to extract ATS keywords, rewrite your bullet points, and draft a concise cover letter.
           </p>
+          <div className="mt-6">
+            <Link href="/profile" className="inline-flex items-center px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg text-sm font-medium hover:bg-indigo-100 transition-colors">
+              <UserCircle className="w-4 h-4 mr-2" />
+              Manage Career Knowledge Base
+            </Link>
+          </div>
         </motion.div>
       </div>
 
@@ -84,21 +91,6 @@ export default function ApplicationAssistant() {
         >
           <form onSubmit={handleTailor} className="space-y-6">
             <div>
-              <label htmlFor="cv" className="flex items-center text-sm font-semibold text-slate-900 mb-2">
-                <FileText className="w-4 h-4 mr-2 text-indigo-500" />
-                Your Current CV
-              </label>
-              <textarea
-                id="cv"
-                value={cv}
-                onChange={(e) => setCv(e.target.value)}
-                placeholder="Paste your full CV here (experience, education, skills, projects)..."
-                className="w-full h-64 p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all resize-none text-sm"
-                required
-              />
-            </div>
-
-            <div>
               <label htmlFor="jobDescription" className="flex items-center text-sm font-semibold text-slate-900 mb-2">
                 <Briefcase className="w-4 h-4 mr-2 text-indigo-500" />
                 Job Description
@@ -111,6 +103,24 @@ export default function ApplicationAssistant() {
                 className="w-full h-64 p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all resize-none text-sm"
                 required
               />
+            </div>
+
+            <div>
+              <label htmlFor="bulletCount" className="flex items-center text-sm font-semibold text-slate-900 mb-2">
+                <ListOrdered className="w-4 h-4 mr-2 text-indigo-500" />
+                Number of Bullet Points
+              </label>
+              <select
+                id="bulletCount"
+                value={bulletCount}
+                onChange={(e) => setBulletCount(Number(e.target.value))}
+                className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-sm outline-none"
+              >
+                <option value={3}>3 Bullet Points (Concise)</option>
+                <option value={5}>5 Bullet Points (Standard)</option>
+                <option value={7}>7 Bullet Points (Detailed)</option>
+                <option value={10}>10 Bullet Points (Comprehensive)</option>
+              </select>
             </div>
 
             {error && (

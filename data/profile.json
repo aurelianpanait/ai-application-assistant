@@ -1,0 +1,52 @@
+{
+  "education": [
+    {
+      "id": "1",
+      "institution": "University of Technology",
+      "degree_type": "Bachelor of Science",
+      "field_of_study": "Computer Science",
+      "start_year": "2020",
+      "end_year": "2024",
+      "graduation_year": "2024",
+      "final_grade": "3.8 GPA",
+      "honors_or_scholarships": "Dean's List 2022-2023",
+      "key_courses": [
+        "Data Structures and Algorithms",
+        "Machine Learning",
+        "Web Development"
+      ],
+      "description": "Specialized in software engineering and artificial intelligence."
+    }
+  ],
+  "experiences": [
+    {
+      "id": "1",
+      "company": "Example Corp",
+      "role": "Software Engineering Intern",
+      "dates": "June 2023 - Aug 2023",
+      "bulletFacts": [
+        "Developed a REST API using Node.js and Express.",
+        "Improved database query performance by 20%."
+      ],
+      "toolsSkills": "Node.js, Express, PostgreSQL"
+    }
+  ],
+  "projects": [
+    {
+      "id": "1",
+      "title": "Portfolio Website",
+      "contextGoal": "Showcase personal projects and skills.",
+      "bulletFacts": [
+        "Designed and built a responsive website using React and Tailwind CSS.",
+        "Deployed the website on Vercel with CI/CD."
+      ],
+      "resultsMetrics": "Achieved 100/100 Lighthouse score.",
+      "techStack": "React, Tailwind CSS, Vercel"
+    }
+  ],
+  "skillsKeywords": {
+    "hardSkills": "JavaScript, TypeScript, Python, SQL",
+    "softSkills": "Communication, Teamwork, Problem Solving",
+    "domains": "Web Development, Machine Learning"
+  }
+}

@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenAI, Type } from '@google/genai';
+import fs from 'fs/promises';
+import path from 'path';
 
 let aiClient: GoogleGenAI | null = null;
 
@@ -17,11 +19,23 @@ function getAiClient(): GoogleGenAI {
 export async function POST(request: Request) {
   try {
     const ai = getAiClient();
-    const { cv, jobDescription } = await request.json();
+    const { jobDescription, bulletCount = 5 } = await request.json();
 
-    if (!cv || !jobDescription) {
+    if (!jobDescription) {
       return NextResponse.json(
-        { error: 'CV and Job Description are required' },
+        { error: 'Job Description is required' },
+        { status: 400 }
+      );
+    }
+
+    // Load profile data
+    const dataFilePath = path.join(process.cwd(), 'data', 'profile.json');
+    let profileData = '';
+    try {
+      profileData = await fs.readFile(dataFilePath, 'utf8');
+    } catch (err) {
+      return NextResponse.json(
+        { error: 'Profile data not found. Please fill out your Career Knowledge Base first.' },
         { status: 400 }
       );
     }
@@ -31,15 +45,18 @@ export async function POST(request: Request) {
       Your task is to help a student/early professional tailor their application to a specific job description.
 
       Core rules:
-      - Use ONLY information provided in the user's CV.
-      - NEVER invent experience, skills, companies, or achievements.
+      - Use ONLY information provided in the user's Master CV Knowledge Base.
+      - NEVER invent experience, education, degrees, skills, companies, or achievements.
+      - Select the most relevant experiences, projects, and education entries based on the job description keywords.
+      - You may reference degrees, key courses, and academic achievements from the education section.
       - Optimize outputs for ATS keyword matching based on the job description.
       - Write concise, professional, impact-focused bullet points.
       - Prefer quantified achievements when possible.
       - Keep tone professional and realistic for internships and graduate roles.
+      - GENERATE EXACTLY ${bulletCount} BULLET POINTS.
 
-      User's CV:
-      ${cv}
+      User's Master CV Knowledge Base (JSON format):
+      ${profileData}
 
       Job Description:
       ${jobDescription}
